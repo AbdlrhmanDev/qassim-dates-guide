@@ -1,73 +1,77 @@
-# Welcome to your Lovable project
+# Qassim Dates Guide | دليل تمور القصيم
 
-## Project info
+A full-stack web platform connecting consumers with date traders and farmers in the Qassim region of Saudi Arabia.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Tech Stack
 
-## How can I edit this code?
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Database**: Supabase (PostgreSQL + RLS)
+- **Auth**: Supabase Auth
+- **State / Data Fetching**: TanStack React Query
+- **AI Chatbot**: Claude API (Anthropic)
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+- Browse date varieties with detailed info and ratings
+- Trader & farmer directory with WhatsApp contact
+- Product catalog per trader with stock and pricing
+- Order system with WhatsApp notification flow
+- Star ratings for traders and products (logged-in users only)
+- Exhibitions listing
+- Producers directory
+- Multi-role dashboard (Admin / Trader / User)
+- Arabic & English bilingual support (RTL/LTR)
+- AI assistant powered by Claude
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Getting Started
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Clone the repository
+git clone https://github.com/AbdlrhmanDev/qassim-dates-guide.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Navigate into the project
+cd qassim-dates-guide
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Copy environment variables
+cp .env.example .env.local
+# Fill in your Supabase URL, anon key, service role key, and Anthropic API key
+
+# 5. Run the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment Variables
 
-**Use GitHub Codespaces**
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+ANTHROPIC_API_KEY=your_anthropic_key
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Database Migrations
 
-## What technologies are used for this project?
+Run the SQL files in order inside the Supabase SQL Editor:
 
-This project is built with:
+```
+supabase/migrations/001_initial_schema.sql
+supabase/migrations/002_trader_products.sql
+supabase/migrations/003_producers.sql
+supabase/migrations/004_product_image.sql
+supabase/migrations/005_product_ratings.sql
+supabase/migrations/006_trader_ratings.sql
+supabase/migrations/007_orders.sql
+supabase/migrations/008_update_trader_whatsapp.sql
+supabase/migrations/009_orders_price.sql
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Deployment
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Deploy on [Vercel](https://vercel.com) by importing the GitHub repository and setting the environment variables in the project settings.

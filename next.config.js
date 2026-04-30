@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['lovable.dev'],
+    domains: [],
   },
   // Enable experimental features if needed
   experimental: {

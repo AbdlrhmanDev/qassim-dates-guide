@@ -10,12 +10,12 @@ export const metadata: Metadata = {
     title: "تمور القصيم | Qassim Dates",
     description: "اكتشف تراث تمور القصيم - منصة ثقافية تربط المستهلكين بمنتجي التمور في منطقة القصيم",
     type: "website",
-    images: ["https://lovable.dev/opengraph-image-p98pqg.png"],
+    images: ["/favicon.png"],
   },
   twitter: {
     card: "summary_large_image",
     site: "@QassimDates",
-    images: ["https://lovable.dev/opengraph-image-p98pqg.png"],
+    images: ["/favicon.png"],
   },
 };
 
