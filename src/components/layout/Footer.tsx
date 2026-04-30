@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
