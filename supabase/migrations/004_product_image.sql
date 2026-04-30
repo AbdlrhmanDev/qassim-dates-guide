@@ -24,3 +24,4 @@ CREATE POLICY "Anyone can upload product images"
 CREATE POLICY "Anyone can update product images"
   ON storage.objects FOR UPDATE
   USING (bucket_id = 'product-images');
+
