@@ -1,3 +1,6 @@
+"use client";
+
+import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Heart, Leaf, Sun, Sparkles } from 'lucide-react';
 import datesOrbital from '@/assets/dates-orbital.jpg';
@@ -94,11 +97,14 @@ const CultureSection = () => {
 
               {/* Center Image Container */}
               <div className="absolute inset-[18%] flex items-center justify-center">
-                <div className="w-full h-full rounded-full overflow-hidden shadow-elevated transform hover:scale-105 transition-transform duration-700 ring-4 ring-primary/20 ring-offset-4 ring-offset-cream">
-                  <img 
-                    src={datesOrbital.src} 
+                <div className="relative w-full h-full rounded-full overflow-hidden shadow-elevated transform hover:scale-105 transition-transform duration-700 ring-4 ring-primary/20 ring-offset-4 ring-offset-cream">
+                  <Image
+                    src={datesOrbital}
                     alt={isRTL ? 'تمور فاخرة' : 'Premium Dates'}
-                    className="w-full h-full object-cover"
+                    fill
+                    quality={80}
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 30vw"
                   />
                 </div>
               </div>

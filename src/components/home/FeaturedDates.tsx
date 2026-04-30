@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -16,28 +19,24 @@ const FeaturedDates = () => {
       name: t('date.sukkary'),
       description: t('date.sukkary.desc'),
       image: sukkaryImage,
-      color: 'from-amber-500/20 to-orange-500/20',
     },
     {
       id: 'khalas',
       name: t('date.khalas'),
       description: t('date.khalas.desc'),
       image: khalasImage,
-      color: 'from-amber-700/20 to-amber-900/20',
     },
     {
       id: 'segae',
       name: t('date.segae'),
       description: t('date.segae.desc'),
       image: segaeImage,
-      color: 'from-yellow-400/20 to-amber-500/20',
     },
     {
       id: 'ajwa',
       name: t('date.ajwa'),
       description: t('date.ajwa.desc'),
       image: ajwaImage,
-      color: 'from-stone-700/20 to-stone-900/20',
     },
   ];
 
@@ -67,10 +66,14 @@ const FeaturedDates = () => {
             >
               {/* Image */}
               <div className="relative h-52 overflow-hidden">
-                <img
-                  src={date.image.src}
+                <Image
+                  src={date.image}
                   alt={date.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  quality={75}
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  loading={index === 0 ? 'eager' : 'lazy'}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
               </div>

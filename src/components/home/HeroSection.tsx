@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowDown, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -11,10 +14,14 @@ const HeroSection = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
-        <img
-          src={heroImage.src}
+        <Image
+          src={heroImage}
           alt="Qassim Date Palm Grove"
-          className="w-full h-full object-cover"
+          fill
+          priority
+          quality={85}
+          className="object-cover"
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/60 via-secondary/40 to-cream" />
       </div>

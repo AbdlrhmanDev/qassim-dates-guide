@@ -1,3 +1,5 @@
+"use client";
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import { TreePalm, Users, CalendarDays, Package } from 'lucide-react';
 
