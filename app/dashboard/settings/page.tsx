@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import SettingsPage from '@/pages/dashboard/SettingsPage';
+import SettingsPage from '@/views/dashboard/SettingsPage';
 
 export default function DashboardSettingsPage() {
   const { isAuthenticated } = useAuth();

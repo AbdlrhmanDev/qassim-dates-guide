@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import ProfilePage from '@/pages/dashboard/ProfilePage';
+import ProfilePage from '@/views/dashboard/ProfilePage';
 
 export default function DashboardProfilePage() {
   const { isAuthenticated, isLoading } = useAuth();

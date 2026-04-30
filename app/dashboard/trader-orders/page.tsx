@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import TraderOrdersPage from '@/pages/dashboard/TraderOrdersPage';
+import TraderOrdersPage from '@/views/dashboard/TraderOrdersPage';
 
 export default function DashboardTraderOrdersPage() {
   const { isAuthenticated, isLoading, user } = useAuth();

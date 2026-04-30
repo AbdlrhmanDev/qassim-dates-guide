@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import ProducersAdminPage from "@/pages/dashboard/ProducersAdminPage";
+import ProducersAdminPage from "@/views/dashboard/ProducersAdminPage";
 
 export default function DashboardProducersPage() {
   const { isAuthenticated, isLoading, user } = useAuth();

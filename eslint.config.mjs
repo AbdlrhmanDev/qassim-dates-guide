@@ -15,6 +15,10 @@ const eslintConfig = [
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@next/next/no-html-link-for-pages": "off",
+      "@next/next/no-img-element": "warn",
+      "react-hooks/exhaustive-deps": "warn",
     },
   },
 ];

@@ -4,9 +4,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import UserDashboard from '@/pages/dashboard/UserDashboard';
-import AdminDashboard from '@/pages/dashboard/AdminDashboard';
-import TraderDashboard from '@/pages/dashboard/TraderDashboard';
+import UserDashboard from '@/views/dashboard/UserDashboard';
+import AdminDashboard from '@/views/dashboard/AdminDashboard';
+import TraderDashboard from '@/views/dashboard/TraderDashboard';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAuth();

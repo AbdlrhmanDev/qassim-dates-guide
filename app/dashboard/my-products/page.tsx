@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import MyProductsPage from '@/pages/dashboard/MyProductsPage';
+import MyProductsPage from '@/views/dashboard/MyProductsPage';
 
 export default function Page() {
   const { user, isAuthenticated, isLoading } = useAuth();

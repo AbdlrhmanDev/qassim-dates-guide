@@ -32,7 +32,12 @@
       "Bash(powershell:*)",
       "Bash(gh auth:*)",
       "Bash(git:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(echo \"EXIT_CODE:$?\")",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(cmd:*)",
+      "Bash(find app:*)",
+      "Bash(xargs grep:*)"
     ]
   }
 }

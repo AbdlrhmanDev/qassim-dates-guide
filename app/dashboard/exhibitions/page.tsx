@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import ExhibitionsAdminPage from '@/pages/dashboard/ExhibitionsAdminPage';
+import ExhibitionsAdminPage from '@/views/dashboard/ExhibitionsAdminPage';
 
 export default function DashboardExhibitionsPage() {
   const { isAuthenticated, isLoading, user } = useAuth();
