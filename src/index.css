@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Qassim Dates - Warm Cream & Brown Palette */
+    --background: 40 30% 96%;
+    --foreground: 25 35% 25%;
+
+    --card: 40 35% 98%;
+    --card-foreground: 25 35% 25%;
+
+    --popover: 40 35% 98%;
+    --popover-foreground: 25 35% 25%;
+
+    /* Primary: Rich Gold/Amber - date fruit color */
+    --primary: 35 70% 42%;
+    --primary-foreground: 40 30% 98%;
+
+    /* Secondary: Deep Brown - date palm trunk */
+    --secondary: 25 40% 30%;
+    --secondary-foreground: 40 30% 96%;
+
+    /* Muted: Warm Cream */
+    --muted: 40 25% 92%;
+    --muted-foreground: 25 20% 50%;
+
+    /* Accent: Warm Brown accent */
+    --accent: 30 35% 45%;
+    --accent-foreground: 40 30% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 35 20% 88%;
+    --input: 35 20% 90%;
+    --ring: 35 70% 42%;
+
+    --radius: 0.625rem;
+
+    /* Custom Qassim Theme Colors */
+    --sand: 40 30% 94%;
+    --sand-dark: 35 25% 85%;
+    --date-gold: 35 70% 45%;
+    --date-brown: 25 40% 30%;
+    --cream: 40 40% 97%;
+    --cream-dark: 38 30% 92%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(35 70% 42% / 0.95), hsl(25 40% 30% / 0.98));
+    --gradient-card: linear-gradient(180deg, hsl(40 35% 99%), hsl(40 30% 96%));
+    --gradient-gold: linear-gradient(180deg, hsl(35 70% 48%), hsl(30 50% 35%));
+
+    /* Shadows */
+    --shadow-soft: 0 2px 12px hsl(25 35% 25% / 0.06);
+    --shadow-card: 0 4px 20px hsl(25 35% 25% / 0.08);
+    --shadow-elevated: 0 12px 40px hsl(25 35% 25% / 0.12);
+    --shadow-glow: 0 0 30px hsl(35 70% 45% / 0.25);
+
+    /* Typography */
+    --font-arabic: 'Amiri', 'Noto Sans Arabic', serif;
+    --font-sans: 'Noto Sans Arabic', system-ui, sans-serif;
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --sidebar-background: 40 30% 96%;
+    --sidebar-foreground: 25 35% 25%;
+    --sidebar-primary: 35 70% 42%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 40 25% 92%;
+    --sidebar-accent-foreground: 25 35% 25%;
+    --sidebar-border: 35 20% 88%;
+    --sidebar-ring: 35 70% 42%;
+  }
+
+  .dark {
+    --background: 25 30% 10%;
+    --foreground: 40 25% 90%;
+
+    --card: 25 25% 14%;
+    --card-foreground: 40 25% 90%;
+
+    --popover: 25 25% 14%;
+    --popover-foreground: 40 25% 90%;
+
+    --primary: 35 65% 50%;
+    --primary-foreground: 25 30% 10%;
+
+    --secondary: 40 20% 22%;
+    --secondary-foreground: 40 25% 90%;
+
+    --muted: 25 20% 18%;
+    --muted-foreground: 40 15% 55%;
+
+    --accent: 30 30% 40%;
+    --accent-foreground: 25 30% 10%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 40 25% 90%;
+
+    --border: 25 20% 22%;
+    --input: 25 20% 22%;
+    --ring: 35 65% 50%;
+
+    --sand: 25 20% 16%;
+    --sand-dark: 25 15% 12%;
+    --date-gold: 35 65% 50%;
+    --date-brown: 40 25% 85%;
+    --cream: 25 15% 18%;
+    --cream-dark: 25 12% 14%;
+
+    --sidebar-background: 25 30% 10%;
+    --sidebar-foreground: 40 25% 90%;
+    --sidebar-primary: 35 65% 50%;
+    --sidebar-primary-foreground: 25 30% 10%;
+    --sidebar-accent: 25 20% 18%;
+    --sidebar-accent-foreground: 40 25% 90%;
+    --sidebar-border: 25 20% 22%;
+    --sidebar-ring: 35 65% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-arabic);
+  }
+}
+
+@layer components {
+  /* Arabic Pattern Background */
+  .arabic-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a853' fill-opacity='0.08'%3E%3Cpath d='M30 0L60 30L30 60L0 30L30 0zm0 10L10 30l20 20 20-20-20-20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Palm Leaf Decoration */
+  .palm-decoration {
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0 C30 20, 20 50, 50 100 C80 50, 70 20, 50 0' fill='%234a5d23' fill-opacity='0.05'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  /* Floating Animation */
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* Fade In Up Animation */
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Staggered Animation Delays */
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+  .delay-400 { animation-delay: 0.4s; }
+  .delay-500 { animation-delay: 0.5s; }
+
+  /* Shimmer Effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary) / 0) 0%,
+      hsl(var(--primary) / 0.3) 50%,
+      hsl(var(--primary) / 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Grain Texture Overlay */
+  .grain-texture::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .rtl {
+    direction: rtl;
+  }
+
+  .ltr {
+    direction: ltr;
+  }
+}

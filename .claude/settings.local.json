@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(mkdir -p \"D:/my-web-project/qassim-dates-guide-main/supabase/migrations\")",
+      "Bash(mkdir -p \"D:/my-web-project/qassim-dates-guide-main/app/api/dates/[id]\")",
+      "Bash(mkdir -p \"D:/my-web-project/qassim-dates-guide-main/app/api/traders/[id]\")",
+      "Bash(mkdir -p \"D:/my-web-project/qassim-dates-guide-main/app/api/sales\")",
+      "Bash(mkdir -p \"D:/my-web-project/qassim-dates-guide-main/app/api/exhibitions\")",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(node -e \":*)",
+      "Bash(node scripts/seed-demo.js)",
+      "Bash(node -e \"require\\(''dotenv''\\)\")",
+      "Bash(cd:*)",
+      "Bash(for f:*)",
+      "Bash(do)",
+      "Bash(echo \"=== $f ===\")",
+      "Read(//d/my-web-project/qassim-dates-guide-main/src/pages/dashboard/**)",
+      "Bash(done)",
+      "Bash(mkdir -p \"D:/my-web-project/qassim-dates-guide-main/app/api/users/[id]\")",
+      "Bash(ls \"D:/my-web-project/qassim-dates-guide-main/app/dashboard/\" grep -n \"trader\\\\|My Products\\\\|products\" \"D:/my-web-project/qassim-dates-guide-main/src/components/dashboard/DashboardLayout.tsx\")",
+      "Bash(ls -d /d/my-web-project/qassim-dates-guide-main/*/)",
+      "Bash(node -e \"const p = require\\(''./node_modules/@supabase/supabase-js/package.json''\\); console.log\\(p.version\\)\")",
+      "Bash(node -e \"console.log\\(require\\(''./node_modules/next/package.json''\\).version\\)\")",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(grep -v \"^--$\")",
+      "Bash(ls D:/my-web-project/qassim-dates-guide-main/.env*)",
+      "Bash(cat D:/my-web-project/qassim-dates-guide-main/app/api/traders/[id]/route.ts)",
+      "Bash(python3:*)",
+      "Bash(powershell:*)",
+      "Bash(gh auth:*)",
+      "Bash(git:*)"
+    ]
+  }
+}
