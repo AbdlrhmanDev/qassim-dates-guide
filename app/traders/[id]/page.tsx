@@ -1,6 +1,6 @@
-import { authFetch } from '@/lib/api-client';
 "use client";
 
+import { authFetch } from '@/lib/api-client';
 import { use, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
