@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAdmin, isAuthError } from '@/lib/auth-guard';
 
-// GET /api/producers?search=xxx&page=1&limit=20
+// GET /api/producers — public
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const search = searchParams.get('search') ?? '';
@@ -17,22 +18,27 @@ export async function GET(req: NextRequest) {
     .range(offset, offset + limit - 1);
 
   if (search) {
-    query = query.or(`company_name.ilike.%${search}%,manager_name.ilike.%${search}%,phone.ilike.%${search}%`);
+    query = query.or(
+      `company_name.ilike.%${search}%,manager_name.ilike.%${search}%,phone.ilike.%${search}%`
+    );
   }
 
   const { data, error, count } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Failed to fetch producers' }, { status: 500 });
   return NextResponse.json({ data, total: count ?? 0, page, limit });
 }
 
-// POST /api/producers  (admin — service role)
+// POST /api/producers — admin only
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin(req);
+  if (isAuthError(guard)) return guard;
+
   const body = await req.json();
   const { data, error } = await supabaseAdmin
     .from('producers')
     .insert(body)
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: 'Failed to create producer' }, { status: 400 });
   return NextResponse.json(data, { status: 201 });
 }

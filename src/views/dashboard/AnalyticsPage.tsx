@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -83,7 +84,7 @@ const AnalyticsPage: React.FC = () => {
   const { data: statsData, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['analytics-dashboard-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/stats');
+      const res = await authFetch('/api/dashboard/stats');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -94,7 +95,7 @@ const AnalyticsPage: React.FC = () => {
   const { data: salesData, isLoading: salesLoading } = useQuery<Sale[]>({
     queryKey: ['analytics-all-sales'],
     queryFn: async () => {
-      const res = await fetch('/api/sales');
+      const res = await authFetch('/api/sales');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },

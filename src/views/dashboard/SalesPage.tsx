@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -43,7 +44,7 @@ const SalesPage: React.FC = () => {
   const { data: sales = [], isLoading } = useQuery<SaleRow[]>({
     queryKey: ['sales'],
     queryFn: async () => {
-      const res = await fetch('/api/sales');
+      const res = await authFetch('/api/sales');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -51,13 +52,13 @@ const SalesPage: React.FC = () => {
 
   const { data: dateTypes = [] } = useQuery<DateType[]>({
     queryKey: ['dates', {}],
-    queryFn: async () => { const r = await fetch('/api/dates'); return r.json(); },
+    queryFn: async () => { const r = await authFetch('/api/dates'); return r.json(); },
     enabled: isTrader,
   });
 
   const createMut = useMutation({
     mutationFn: async (body: typeof form) => {
-      const res = await fetch('/api/sales', {
+      const res = await authFetch('/api/sales', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...body, quantity: Number(body.quantity), price_per_unit: Number(body.price_per_unit) }),
       });

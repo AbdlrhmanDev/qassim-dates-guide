@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -39,7 +40,7 @@ const TradersAdminPage: React.FC = () => {
   const { data: traders = [], isLoading, isError } = useQuery<Trader[]>({
     queryKey: ['admin-traders'],
     queryFn: async () => {
-      const res = await fetch('/api/traders?admin=true');
+      const res = await authFetch('/api/traders?admin=true');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },

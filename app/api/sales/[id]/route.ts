@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAdmin, isAuthError } from '@/lib/auth-guard';
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function DELETE(_req: NextRequest, { params }: Params) {
+// DELETE /api/sales/:id — admin only
+export async function DELETE(req: NextRequest, { params }: Params) {
+  const guard = await requireAdmin(req);
+  if (isAuthError(guard)) return guard;
+
   const { id } = await params;
-  const { error } = await supabase.from('sales').delete().eq('sale_id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  const { error } = await supabaseAdmin.from('sales').delete().eq('sale_id', id);
+  if (error) return NextResponse.json({ error: 'Delete failed' }, { status: 400 });
   return NextResponse.json({ success: true });
 }

@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -25,7 +26,7 @@ const UsersPage: React.FC = () => {
   const { data: users = [], isLoading, isError } = useQuery<AppUserRow[]>({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      const res = await fetch('/api/users');
+      const res = await authFetch('/api/users');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },

@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -55,7 +56,7 @@ const MyProductsPage: React.FC = () => {
     queryKey: ['my-trader', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      const res = await fetch(`/api/traders?user_id=${user.id}`);
+      const res = await authFetch(`/api/traders?user_id=${user.id}`);
       if (!res.ok) return null;
       return res.json();
     },
@@ -68,7 +69,7 @@ const MyProductsPage: React.FC = () => {
   const { data: products = [], isLoading } = useQuery<TraderProduct[]>({
     queryKey: ['my-products', traderId],
     queryFn: async () => {
-      const res = await fetch(`/api/trader-products?trader_id=${traderId}`);
+      const res = await authFetch(`/api/trader-products?trader_id=${traderId}`);
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -78,7 +79,7 @@ const MyProductsPage: React.FC = () => {
   // Fetch all date types for the picker
   const { data: dateTypes = [] } = useQuery<DateType[]>({
     queryKey: ['dates', {}],
-    queryFn: async () => { const r = await fetch('/api/dates'); return r.json(); },
+    queryFn: async () => { const r = await authFetch('/api/dates'); return r.json(); },
   });
 
   const usedDateTypeIds = new Set(products.map(p => p.date_type_id));
@@ -88,7 +89,7 @@ const MyProductsPage: React.FC = () => {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('trader_id', traderId ?? 'shared');
-    const res = await fetch('/api/upload', { method: 'POST', body: fd });
+    const res = await authFetch('/api/upload', { method: 'POST', body: fd });
     if (!res.ok) { const e = await res.json(); throw new Error(e.error ?? 'Upload failed'); }
     const { url } = await res.json();
     return url;
@@ -99,7 +100,7 @@ const MyProductsPage: React.FC = () => {
       let image_url: string | null = null;
       if (imageFile) image_url = await uploadImage(imageFile);
 
-      const res = await fetch('/api/trader-products', {
+      const res = await authFetch('/api/trader-products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -126,7 +127,7 @@ const MyProductsPage: React.FC = () => {
       let image_url: string | null = editing?.image_url ?? null;
       if (imageFile) image_url = await uploadImage(imageFile);
 
-      const res = await fetch(`/api/trader-products/${id}`, {
+      const res = await authFetch(`/api/trader-products/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +149,7 @@ const MyProductsPage: React.FC = () => {
 
   const deleteMut = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/trader-products/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`/api/trader-products/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed');
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['my-products', traderId] }); setConfirmDelete(null); },

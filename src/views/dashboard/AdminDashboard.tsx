@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -27,7 +28,7 @@ const AdminDashboard: React.FC = () => {
   const { data, isLoading } = useQuery<DashboardStats>({
     queryKey: ['admin-dashboard-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/stats');
+      const res = await authFetch('/api/dashboard/stats');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },

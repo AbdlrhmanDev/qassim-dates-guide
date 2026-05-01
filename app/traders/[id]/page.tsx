@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 "use client";
 
 import { use, useState, useCallback } from 'react';
@@ -103,10 +104,10 @@ export default function TraderProfilePage({ params }: { params: Promise<{ id: st
     setRatingLoading(l => ({ ...l, [productId]: true }));
 
     try {
-      const res = await fetch('/api/product-ratings', {
+      const res = await authFetch('/api/product-ratings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: productId, stars, user_id: user.id }),
+        body: JSON.stringify({ product_id: productId, stars }),
       });
       if (res.ok) {
         const { rating, rating_count } = await res.json();
@@ -164,10 +165,10 @@ export default function TraderProfilePage({ params }: { params: Promise<{ id: st
     setTraderRatingLoading(true);
 
     try {
-      const res = await fetch('/api/trader-ratings', {
+      const res = await authFetch('/api/trader-ratings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trader_id: id, stars, user_id: voterKey }),
+        body: JSON.stringify({ trader_id: id, stars }),
       });
       if (res.ok) {
         const { rating, rating_count } = await res.json();

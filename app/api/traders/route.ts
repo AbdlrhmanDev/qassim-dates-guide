@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAdmin, requireAuth, isAuthError } from '@/lib/auth-guard';
 
 // GET /api/traders
 export async function GET(req: NextRequest) {
@@ -8,26 +9,34 @@ export async function GET(req: NextRequest) {
   const city   = searchParams.get('city');
   const search = searchParams.get('search');
   const userId = searchParams.get('user_id');
-  const admin  = searchParams.get('admin') === 'true'; // admin=true → return all statuses
+  const admin  = searchParams.get('admin') === 'true';
 
-  // Admin: return all traders regardless of status (uses service role key)
+  // Admin: return all traders regardless of status — requires auth
   if (admin) {
+    const guard = await requireAdmin(req);
+    if (isAuthError(guard)) return guard;
+
     const { data, error } = await supabaseAdmin
       .from('traders')
       .select('*, users(full_name, email)')
       .order('created_at', { ascending: false });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Failed to fetch traders' }, { status: 500 });
     return NextResponse.json(data);
   }
 
-  // Trader looking up their own profile
+  // Trader looking up their own profile — requires auth, must be same user
   if (userId) {
+    const guard = await requireAuth(req);
+    if (isAuthError(guard)) return guard;
+    if (guard.role !== 'admin' && guard.id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const { data, error } = await supabase
       .from('traders')
       .select('*')
       .eq('user_id', userId)
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 404 });
+    if (error) return NextResponse.json({ error: 'Trader not found' }, { status: 404 });
     return NextResponse.json(data);
   }
 
@@ -42,22 +51,22 @@ export async function GET(req: NextRequest) {
   if (search) query = query.ilike('shop_name', `%${search}%`);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Failed to fetch traders' }, { status: 500 });
   return NextResponse.json(data);
 }
 
-// POST /api/traders
+// POST /api/traders — admin only
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const guard = await requireAdmin(req);
+  if (isAuthError(guard)) return guard;
 
-  const { data, error } = await supabase
+  const body = await req.json();
+  const { data, error } = await supabaseAdmin
     .from('traders')
     .insert(body)
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+  if (error) return NextResponse.json({ error: 'Failed to create trader' }, { status: 400 });
   return NextResponse.json(data, { status: 201 });
 }

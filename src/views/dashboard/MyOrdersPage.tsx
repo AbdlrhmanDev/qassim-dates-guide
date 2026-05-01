@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -107,7 +108,7 @@ const MyOrdersPage: React.FC = () => {
   const { data: traders = [] } = useQuery<Trader[]>({
     queryKey: ['active-traders-list'],
     queryFn: async () => {
-      const res = await fetch('/api/traders');
+      const res = await authFetch('/api/traders');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -118,7 +119,7 @@ const MyOrdersPage: React.FC = () => {
   const { data: dateTypes = [] } = useQuery<DateType[]>({
     queryKey: ['date-types-list'],
     queryFn: async () => {
-      const res = await fetch('/api/dates');
+      const res = await authFetch('/api/dates');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -151,7 +152,7 @@ const MyOrdersPage: React.FC = () => {
   // Place order
   const placeMut = useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/orders', {
+      const res = await authFetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

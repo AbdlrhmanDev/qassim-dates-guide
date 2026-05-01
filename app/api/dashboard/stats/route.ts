@@ -1,8 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAdmin, isAuthError } from '@/lib/auth-guard';
 
-// GET /api/dashboard/stats  — admin overview
-export async function GET() {
+// GET /api/dashboard/stats — admin overview
+export async function GET(req: NextRequest) {
+  const guard = await requireAdmin(req);
+  if (isAuthError(guard)) return guard;
+
   const [
     usersRes,
     tradersRes,
@@ -27,24 +31,23 @@ export async function GET() {
       .limit(5),
   ]);
 
-  const traders = tradersRes.data ?? [];
-  const pendingTraders = traders.filter((t: any) => t.status === 'pending').length;
-  const activeTraders  = traders.filter((t: any) => t.status === 'active').length;
-
-  const revenue = (salesRes.data ?? []).reduce(
-    (sum: number, s: any) => sum + (Number(s.total_price) || 0),
+  const traders        = tradersRes.data ?? [];
+  const pendingTraders = traders.filter((t: { status: string }) => t.status === 'pending').length;
+  const activeTraders  = traders.filter((t: { status: string }) => t.status === 'active').length;
+  const revenue        = (salesRes.data ?? []).reduce(
+    (sum: number, s: { total_price: string | number }) => sum + (Number(s.total_price) || 0),
     0
   );
 
   return NextResponse.json({
-    users:          usersRes.count  ?? 0,
-    traders:        traders.length,
+    users:         usersRes.count  ?? 0,
+    traders:       traders.length,
     activeTraders,
     pendingTraders,
-    dateTypes:      dateTypesRes.count ?? 0,
-    salesCount:     salesRes.data?.length ?? 0,
+    dateTypes:     dateTypesRes.count ?? 0,
+    salesCount:    salesRes.data?.length ?? 0,
     revenue,
-    recentTraders:  recentTradersRes.data  ?? [],
-    recentSales:    recentSalesRes.data    ?? [],
+    recentTraders: recentTradersRes.data ?? [],
+    recentSales:   recentSalesRes.data   ?? [],
   });
 }

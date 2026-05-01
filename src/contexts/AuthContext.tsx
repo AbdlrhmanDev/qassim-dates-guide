@@ -38,11 +38,10 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// Demo users (for demo mode only)
-const demoUsers: Record<UserRole, AppUser> = {
-  user:   { id: 'demo-1', email: 'user@demo.com',   name: 'أحمد محمد',    role: 'user',   isDemo: true },
-  admin:  { id: 'demo-2', email: 'admin@demo.com',  name: 'مدير النظام',  role: 'admin',  isDemo: true },
-  trader: { id: 'demo-3', email: 'trader@demo.com', name: 'تاجر التمور',  role: 'trader', isDemo: true },
+// Demo users — admin demo intentionally excluded to prevent false sense of admin access
+const demoUsers: Partial<Record<UserRole, AppUser>> = {
+  user:   { id: 'demo-1', email: 'user@demo.com',   name: 'أحمد محمد',   role: 'user',   isDemo: true },
+  trader: { id: 'demo-3', email: 'trader@demo.com', name: 'تاجر التمور', role: 'trader', isDemo: true },
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,8 +52,19 @@ function mapSupabaseUser(supaUser: SupabaseUser): AppUser {
     id:    supaUser.id,
     email: supaUser.email ?? '',
     name:  meta.full_name ?? meta.name ?? supaUser.email ?? '',
-    role:  (meta.role as UserRole) ?? 'user',
+    // Role defaults to 'user' — enrichWithRole() overwrites this from public.users
+    role:  'user',
   };
+}
+
+/** Fetch the server-controlled role from public.users and merge into AppUser */
+async function enrichWithRole(base: AppUser): Promise<AppUser> {
+  const { data } = await supabase
+    .from('users')
+    .select('role')
+    .eq('user_id', base.id)
+    .single();
+  return { ...base, role: (data?.role as UserRole) ?? 'user' };
 }
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -63,23 +73,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Restore session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Restore session on mount — enrich with server-controlled role
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setSession(session);
-        setUser(mapSupabaseUser(session.user));
+        const enriched = await enrichWithRole(mapSupabaseUser(session.user));
+        setUser(enriched);
       }
       setLoading(false);
     });
 
     // Listen to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setSession(session);
-        setUser(mapSupabaseUser(session.user));
+        const enriched = await enrichWithRole(mapSupabaseUser(session.user));
+        setUser(enriched);
       } else {
         setSession(null);
-        // Only clear if not a demo user
         setUser(prev => (prev?.isDemo ? prev : null));
       }
     });
@@ -140,9 +151,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSession(null);
   };
 
-  // Demo login (bypass Supabase auth)
+  // Demo login — admin demo is blocked; demo users have no real JWT and cannot call write APIs
   const loginDemo = (role: UserRole) => {
-    setUser(demoUsers[role]);
+    if (role === 'admin') {
+      console.warn('Demo admin login is disabled');
+      return;
+    }
+    const demoUser = demoUsers[role];
+    if (demoUser) setUser(demoUser);
   };
 
   // Backward-compat alias

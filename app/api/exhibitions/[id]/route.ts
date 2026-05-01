@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAdmin, isAuthError } from '@/lib/auth-guard';
 
 type Params = { params: Promise<{ id: string }> };
 
-// PUT /api/exhibitions/:id  (admin write — service role bypasses RLS)
+// PUT /api/exhibitions/:id  (admin only)
 export async function PUT(req: NextRequest, { params }: Params) {
+  const guard = await requireAdmin(req);
+  if (isAuthError(guard)) return guard;
+
   const { id } = await params;
   const body = await req.json();
 
@@ -15,19 +19,21 @@ export async function PUT(req: NextRequest, { params }: Params) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: 'Update failed' }, { status: 400 });
   return NextResponse.json(data);
 }
 
-// DELETE /api/exhibitions/:id  (admin write — service role bypasses RLS)
-export async function DELETE(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+// DELETE /api/exhibitions/:id  (admin only)
+export async function DELETE(req: NextRequest, { params }: Params) {
+  const guard = await requireAdmin(req);
+  if (isAuthError(guard)) return guard;
 
+  const { id } = await params;
   const { error } = await supabaseAdmin
     .from('exhibitions')
     .delete()
     .eq('exhibition_id', id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: 'Delete failed' }, { status: 400 });
   return NextResponse.json({ success: true });
 }

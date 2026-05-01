@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -54,7 +55,7 @@ const ExhibitionsAdminPage: React.FC = () => {
   const { data: exhibitions = [], isLoading } = useQuery<Exhibition[]>({
     queryKey: ['exhibitions-admin'],
     queryFn: async () => {
-      const res = await fetch('/api/exhibitions');
+      const res = await authFetch('/api/exhibitions');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -62,7 +63,7 @@ const ExhibitionsAdminPage: React.FC = () => {
 
   const createMut = useMutation({
     mutationFn: async (body: ExhibitionForm) => {
-      const res = await fetch('/api/exhibitions', {
+      const res = await authFetch('/api/exhibitions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

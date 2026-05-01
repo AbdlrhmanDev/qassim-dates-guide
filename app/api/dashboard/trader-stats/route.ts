@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAuth, isAuthError } from '@/lib/auth-guard';
 
-// GET /api/dashboard/trader-stats?user_id=xxx
+// GET /api/dashboard/trader-stats — trader sees own stats; admin sees any
 export async function GET(req: NextRequest) {
-  const userId = new URL(req.url).searchParams.get('user_id');
-  if (!userId) return NextResponse.json({ error: 'user_id required' }, { status: 400 });
+  const guard = await requireAuth(req);
+  if (isAuthError(guard)) return guard;
 
-  // Find this trader's record
-  const { data: trader, error: traderErr } = await supabase
+  const requestedUserId = new URL(req.url).searchParams.get('user_id');
+  if (!requestedUserId) return NextResponse.json({ error: 'user_id required' }, { status: 400 });
+
+  // Non-admins may only access their own stats
+  if (guard.role !== 'admin' && requestedUserId !== guard.id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { data: trader, error: traderErr } = await supabaseAdmin
     .from('traders')
     .select('trader_id, shop_name, city, rating, rating_count, verified, status')
-    .eq('user_id', userId)
+    .eq('user_id', requestedUserId)
     .single();
 
   if (traderErr || !trader) {
@@ -20,21 +28,21 @@ export async function GET(req: NextRequest) {
   const traderId = trader.trader_id;
 
   const [productsRes, salesRes, topProductsRes, recentSalesRes] = await Promise.all([
-    supabase
+    supabaseAdmin
       .from('trader_products')
       .select('*', { count: 'exact', head: true })
       .eq('trader_id', traderId),
-    supabase
+    supabaseAdmin
       .from('sales')
       .select('total_price, quantity_kg')
       .eq('trader_id', traderId),
-    supabase
+    supabaseAdmin
       .from('trader_products')
       .select('price_per_kg, rating, rating_count, date_types(name_ar, name_en, category)')
       .eq('trader_id', traderId)
       .order('rating', { ascending: false })
       .limit(4),
-    supabase
+    supabaseAdmin
       .from('sales')
       .select('sale_date, quantity_kg, total_price, date_types(name_ar, name_en), market_name')
       .eq('trader_id', traderId)
@@ -43,7 +51,7 @@ export async function GET(req: NextRequest) {
   ]);
 
   const revenue = (salesRes.data ?? []).reduce(
-    (sum, s: any) => sum + (Number(s.total_price) || 0),
+    (sum: number, s: { total_price: string | number }) => sum + (Number(s.total_price) || 0),
     0
   );
 

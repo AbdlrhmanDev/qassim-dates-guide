@@ -1,57 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAuth, isAuthError } from '@/lib/auth-guard';
 
-// POST /api/trader-ratings
-// Body: { trader_id, stars, user_id }
-// Only authenticated users may rate traders
+// POST /api/trader-ratings — authenticated users only; voter identity always from JWT
 export async function POST(req: NextRequest) {
-  const { trader_id, stars, user_id } = await req.json();
+  const guard = await requireAuth(req);
+  if (isAuthError(guard)) return guard;
 
-  if (!user_id) {
-    return NextResponse.json({ error: 'Login required to rate' }, { status: 401 });
+  const { trader_id, stars } = await req.json();
+
+  if (!trader_id) {
+    return NextResponse.json({ error: 'trader_id is required' }, { status: 400 });
   }
-  if (!trader_id || !stars) {
-    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  const starsNum = Number(stars);
+  if (!starsNum || starsNum < 1 || starsNum > 5) {
+    return NextResponse.json({ error: 'stars must be between 1 and 5' }, { status: 400 });
   }
 
-  const voter_key = user_id;
-  if (stars < 1 || stars > 5) {
-    return NextResponse.json({ error: 'Stars must be 1–5' }, { status: 400 });
-  }
+  // voter_key is always the verified JWT identity — never from request body
+  const voter_key = guard.id;
 
-  // Upsert: insert new or update existing rating for this voter on this trader
   const { error: upsertError } = await supabaseAdmin
     .from('trader_ratings')
-    .upsert({ trader_id, voter_key, stars }, { onConflict: 'trader_id,voter_key' });
+    .upsert({ trader_id, voter_key, stars: starsNum }, { onConflict: 'trader_id,voter_key' });
 
   if (upsertError) {
-    return NextResponse.json({ error: upsertError.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to save rating' }, { status: 500 });
   }
 
-  // Recompute average and count
   const { data: rows, error: aggError } = await supabaseAdmin
     .from('trader_ratings')
     .select('stars')
     .eq('trader_id', trader_id);
 
-  if (aggError) {
-    return NextResponse.json({ error: aggError.message }, { status: 500 });
-  }
+  if (aggError) return NextResponse.json({ error: 'Failed to compute rating' }, { status: 500 });
 
   const rating_count = rows.length;
   const rating = rating_count > 0
     ? Math.round((rows.reduce((s, r) => s + r.stars, 0) / rating_count) * 100) / 100
     : 0;
 
-  // Update traders table
   const { error: updateError } = await supabaseAdmin
     .from('traders')
     .update({ rating, rating_count })
     .eq('trader_id', trader_id);
 
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
-  }
+  if (updateError) return NextResponse.json({ error: 'Failed to update trader rating' }, { status: 500 });
 
   return NextResponse.json({ rating, rating_count });
 }

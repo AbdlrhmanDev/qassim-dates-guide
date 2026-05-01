@@ -1,3 +1,4 @@
+import { authFetch } from '@/lib/api-client';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -58,7 +59,7 @@ const ProducersAdminPage: React.FC = () => {
 
   const createMut = useMutation({
     mutationFn: async (body: ProducerForm) => {
-      const res = await fetch('/api/producers', {
+      const res = await authFetch('/api/producers', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });

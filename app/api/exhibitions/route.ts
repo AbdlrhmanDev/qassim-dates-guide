@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAdmin, isAuthError } from '@/lib/auth-guard';
 
 // GET /api/exhibitions  (public — anon key is fine)
-// Supports optional ?page=&limit= for pagination; returns { data, total } when page is provided.
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get('status');
-  const pageParam = searchParams.get('page');
+  const status     = searchParams.get('status');
+  const pageParam  = searchParams.get('page');
   const limitParam = searchParams.get('limit');
 
   const isPaginated = pageParam !== null;
@@ -21,20 +21,27 @@ export async function GET(req: NextRequest) {
     .select('*', isPaginated ? { count: 'exact' } : undefined)
     .order('start_date', { ascending: true });
 
-  if (status) query = query.eq('status', status);
+  if (status)     query = query.eq('status', status);
   if (isPaginated) query = query.range(from, to);
 
   const { data, error, count } = await query;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
+  if (error) return NextResponse.json({ error: 'Failed to fetch exhibitions' }, { status: 500 });
   if (isPaginated) return NextResponse.json({ data, total: count ?? 0 });
   return NextResponse.json(data);
 }
 
-// POST /api/exhibitions  (admin write — service role bypasses RLS)
+// POST /api/exhibitions  (admin only)
 export async function POST(req: NextRequest) {
+  const guard = await requireAdmin(req);
+  if (isAuthError(guard)) return guard;
+
   const body = await req.json();
+
+  // Basic field validation
+  if (!body.name_ar?.trim() || !body.name_en?.trim() || !body.city?.trim()) {
+    return NextResponse.json({ error: 'name_ar, name_en, and city are required' }, { status: 400 });
+  }
 
   const { data, error } = await supabaseAdmin
     .from('exhibitions')
@@ -42,8 +49,6 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+  if (error) return NextResponse.json({ error: 'Failed to create exhibition' }, { status: 400 });
   return NextResponse.json(data, { status: 201 });
 }

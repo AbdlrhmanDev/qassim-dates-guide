@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireAuth, isAuthError } from '@/lib/auth-guard';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GROQ_API_KEY   = process.env.GROQ_API_KEY;
@@ -7,17 +8,35 @@ const GEMINI_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+// Hard caps to prevent token cost abuse
+const MAX_MESSAGES   = 20;
+const MAX_MSG_LENGTH = 2000;
+
 export async function POST(req: NextRequest) {
+  // Require authentication — prevents unauthenticated API cost abuse
+  const guard = await requireAuth(req);
+  if (isAuthError(guard)) return guard;
+
   if (!GEMINI_API_KEY && !GROQ_API_KEY) {
-    return NextResponse.json(
-      { error: 'No AI key configured. Add GEMINI_API_KEY or GROQ_API_KEY to .env.local' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'AI service not configured' }, { status: 500 });
   }
 
   const { messages } = await req.json();
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: 'No messages provided' }, { status: 400 });
+  }
+
+  // Sanitize: cap conversation length and per-message size
+  const safeMessages = messages
+    .slice(-MAX_MESSAGES)
+    .map((m: { role: string; content: string }) => ({
+      role:    String(m.role    ?? 'user').slice(0, 20),
+      content: String(m.content ?? '').slice(0, MAX_MSG_LENGTH),
+    }))
+    .filter(m => ['user', 'assistant', 'model'].includes(m.role) && m.content.length > 0);
+
+  if (safeMessages.length === 0) {
+    return NextResponse.json({ error: 'No valid messages provided' }, { status: 400 });
   }
 
   // Fetch live data in parallel
@@ -107,48 +126,34 @@ ${dateTypesText}
 - For HEART HEALTH: Ajwa dates are traditionally known for cardiovascular benefits
 - General: dates are rich in fiber, potassium, magnesium, and antioxidants`;
 
-  // ── Groq (OpenAI-compatible) ─────────────────────────────────────────────
+  // ── Groq ─────────────────────────────────────────────────────────────────
   if (GROQ_API_KEY) {
     const groqMessages = [
       { role: 'system', content: systemPrompt },
-      ...messages.map((m: { role: string; content: string }) => ({
-        role: m.role,
-        content: m.content,
-      })),
+      ...safeMessages.map(m => ({ role: m.role, content: m.content })),
     ];
 
     try {
       const res = await fetch(GROQ_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
-          messages: groqMessages,
-          temperature: 0.7,
-          max_tokens: 1024,
-        }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_API_KEY}` },
+        body: JSON.stringify({ model: 'llama-3.1-8b-instant', messages: groqMessages, temperature: 0.7, max_tokens: 1024 }),
       });
-
       if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        const msg = errBody?.error?.message ?? `Groq returned ${res.status}`;
-        return NextResponse.json({ error: msg }, { status: 500 });
+        console.error('[chat] Groq error', res.status);
+        return NextResponse.json({ error: 'AI service error' }, { status: 500 });
       }
-
       const data = await res.json();
-      const content: string = data.choices?.[0]?.message?.content ?? 'No response.';
-      return NextResponse.json({ content });
-    } catch {
-      return NextResponse.json({ error: 'Failed to reach Groq API.' }, { status: 500 });
+      return NextResponse.json({ content: data.choices?.[0]?.message?.content ?? 'No response.' });
+    } catch (err) {
+      console.error('[chat] Groq failed', err);
+      return NextResponse.json({ error: 'AI service unavailable' }, { status: 500 });
     }
   }
 
   // ── Gemini fallback ───────────────────────────────────────────────────────
-  const geminiContents = messages.map((m: { role: string; content: string }) => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
+  const geminiContents = safeMessages.map(m => ({
+    role:  m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
 
@@ -162,18 +167,14 @@ ${dateTypesText}
         generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
       }),
     });
-
     if (!res.ok) {
-      const errBody = await res.json().catch(() => ({}));
-      const msg = errBody?.error?.message ?? `Gemini returned ${res.status}`;
-      return NextResponse.json({ error: msg }, { status: 500 });
+      console.error('[chat] Gemini error', res.status);
+      return NextResponse.json({ error: 'AI service error' }, { status: 500 });
     }
-
     const data = await res.json();
-    const content: string =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response generated.';
-    return NextResponse.json({ content });
-  } catch {
-    return NextResponse.json({ error: 'Failed to reach Gemini API.' }, { status: 500 });
+    return NextResponse.json({ content: data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response generated.' });
+  } catch (err) {
+    console.error('[chat] Gemini failed', err);
+    return NextResponse.json({ error: 'AI service unavailable' }, { status: 500 });
   }
 }
