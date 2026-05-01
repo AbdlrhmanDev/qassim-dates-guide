@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { requireAuth, isAuthError } from '@/lib/auth-guard';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GROQ_API_KEY   = process.env.GROQ_API_KEY;
@@ -13,10 +12,6 @@ const MAX_MESSAGES   = 20;
 const MAX_MSG_LENGTH = 2000;
 
 export async function POST(req: NextRequest) {
-  // Require authentication — prevents unauthenticated API cost abuse
-  const guard = await requireAuth(req);
-  if (isAuthError(guard)) return guard;
-
   if (!GEMINI_API_KEY && !GROQ_API_KEY) {
     return NextResponse.json({ error: 'AI service not configured' }, { status: 500 });
   }

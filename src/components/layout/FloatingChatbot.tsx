@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { authFetch } from '@/lib/api-client';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -70,8 +69,9 @@ export default function FloatingChatbot() {
     setLoading(true);
 
     try {
-      const res = await authFetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: updated }),
       });
       const data = await res.json();
